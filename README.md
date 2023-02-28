@@ -7,8 +7,6 @@ This project was created in order to learn how to use a NoSQL database (MongoDb 
 ---
 ## Table of Contents (Optional)
 
-If your README is long, add a table of contents to make it easy for users to find what they need.
-
 - [Installation](#installation)
 - [Usage](#usage)
 - [Credits](#credits)
@@ -31,6 +29,7 @@ npm run start
 ```
 ---
 ## Usage
+See this [video](https://drive.google.com/file/d/1uLLaiwMKxbniRdxHNhiGvrqPVfRChyZr/view) for a demonstration.
 
 The API is broken up into several HTTP routes:
  - Users
