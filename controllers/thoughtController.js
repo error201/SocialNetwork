@@ -15,7 +15,7 @@ module.exports = {
             )
             .catch((err) => res.status(500).json(err));
     },
-    // create a new thought
+    // create a new thought. Push the thoughtId to the user's thoughts array.
     createThought(req, res) {
         let userId = req.body.userId;
         Thought.create(req.body)
