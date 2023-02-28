@@ -1,104 +1,63 @@
-const { Video, User } = require('../models');
+const { Thought, User, Reaction } = require('../models');
 
 module.exports = {
-  getVideos(req, res) {
-    Video.find()
-      .then((videos) => res.json(videos))
-      .catch((err) => res.status(500).json(err));
-  },
-  getSingleVideo(req, res) {
-    Video.findOne({ _id: req.params.videoId })
-      .then((video) =>
-        !video
-          ? res.status(404).json({ message: 'No video with that ID' })
-          : res.json(video)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
-  // create a new video
-  createVideo(req, res) {
-    Video.create(req.body)
-      .then((video) => {
-        return User.findOneAndUpdate(
-          { _id: req.body.userId },
-          { $addToSet: { videos: video._id } },
-          { new: true }
-        );
-      })
-      .then((user) =>
-        !user
-          ? res.status(404).json({
-              message: 'Video created, but found no user with that ID',
-            })
-          : res.json('Created the video 🎉')
-      )
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-  },
-  updateVideo(req, res) {
-    Video.findOneAndUpdate(
-      { _id: req.params.videoId },
-      { $set: req.body },
-      { runValidators: true, new: true }
-    )
-      .then((video) =>
-        !video
-          ? res.status(404).json({ message: 'No video with this id!' })
-          : res.json(video)
-      )
-      .catch((err) => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-  },
-  deleteVideo(req, res) {
-    Video.findOneAndRemove({ _id: req.params.videoId })
-      .then((video) =>
-        !video
-          ? res.status(404).json({ message: 'No video with this id!' })
-          : User.findOneAndUpdate(
-              { videos: req.params.videoId },
-              { $pull: { videos: req.params.videoId } },
-              { new: true }
+    getThoughts(req, res) {
+        Thought.find()
+            .then((thought) => res.json(thought))
+            .catch((err) => res.status(500).json(err));
+    },
+    getSingleThought(req, res) {
+        Thought.findOne({ _id: req.params.thoughtId })
+            .then((thought) =>
+                !thought
+                    ? res.status(404).json({ message: 'No thought with that thoughtId' })
+                    : res.json(thought)
             )
-      )
-      .then((user) =>
-        !user
-          ? res
-              .status(404)
-              .json({ message: 'Video created but no user with this id!' })
-          : res.json({ message: 'Video successfully deleted!' })
-      )
-      .catch((err) => res.status(500).json(err));
-  },
-  // Add a video response
-  addVideoResponse(req, res) {
-    Video.findOneAndUpdate(
-      { _id: req.params.videoId },
-      { $addToSet: { responses: req.body } },
-      { runValidators: true, new: true }
-    )
-      .then((video) =>
-        !video
-          ? res.status(404).json({ message: 'No video with this id!' })
-          : res.json(video)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
-  // Remove video response
-  removeVideoResponse(req, res) {
-    Video.findOneAndUpdate(
-      { _id: req.params.videoId },
-      { $pull: { reactions: { responseId: req.params.responseId } } },
-      { runValidators: true, new: true }
-    )
-      .then((video) =>
-        !video
-          ? res.status(404).json({ message: 'No video with this id!' })
-          : res.json(video)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
+            .catch((err) => res.status(500).json(err));
+    },
+    // create a new thought
+    createThought(req, res) {
+        let userId = req.body.userId;
+        Thought.create(req.body)
+            .then((data) =>
+                User.findOneAndUpdate(
+                    { _id: userId },
+                    { $push: { "thoughts": data._id } },
+                    { runValidators: true, new: true }
+                ).then((user) =>
+                    !user
+                        ? res.status(404).json({ message: 'No user with that userId' })
+                        : res.json(user)
+                )
+            )
+            .catch((err) => res.status(500).json(err));
+
+    },
+    // Delete a thought by ID.
+    deleteThought(req, res) {
+        let thoughtId = req.params.thoughtId;
+        Thought.deleteOne({ _id: thoughtId })
+            .then((data) =>
+                User.findOneAndUpdate(
+                    { thoughts: thoughtId },
+                    { $pull: { "thoughts": thoughtId } },
+                    { runValidators: true, new: true }
+                ).then((user) =>
+                !user
+                    ? res.status(404).json({ message: 'No user with that userId' })
+                    : res.json(user)
+            )
+            )
+            .catch((err) => res.status(500).json(err));
+    },
+    // Update a thought by ID.
+    updateThought(req, res) {
+        Thought.findOneAndUpdate(
+            { _id: req.params.thoughtId },
+            req.body,
+            { new: true }
+        )
+            .then((updated) => res.json(updated))
+            .catch((err) => res.status(500).json(err));
+    },
 };
