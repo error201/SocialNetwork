@@ -33,7 +33,7 @@ module.exports = {
             .catch((err) => res.status(500).json(err));
 
     },
-    // Delete a thought by ID.
+    // Delete a thought by ID. Delete thought from users' thoughts array.
     deleteThought(req, res) {
         let thoughtId = req.params.thoughtId;
         Thought.deleteOne({ _id: thoughtId })
@@ -43,10 +43,10 @@ module.exports = {
                     { $pull: { "thoughts": thoughtId } },
                     { runValidators: true, new: true }
                 ).then((user) =>
-                !user
-                    ? res.status(404).json({ message: 'No user with that userId' })
-                    : res.json(user)
-            )
+                    !user
+                        ? res.status(404).json({ message: 'No user with that userId' })
+                        : res.json(user)
+                )
             )
             .catch((err) => res.status(500).json(err));
     },
